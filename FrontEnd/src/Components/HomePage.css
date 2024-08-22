@@ -1,0 +1,22 @@
+.container {
+  width: 500px;
+  height: 250px;
+  margin: 0px auto;
+  border: solid 1px black;
+  padding: 8px;
+  background-color: lightgrey;
+}
+
+.inner-contain {
+  border: dotted 1px black;
+  background-color: red;
+  padding: 2px;
+  text-align: center;
+}
+
+.inputs {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
