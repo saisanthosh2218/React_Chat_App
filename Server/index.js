@@ -15,24 +15,27 @@ io.on("connection", (socket) => {
 
   socket.on("joined", ({ user }) => {
     users[socket.id] = user;
-    console.log(`${user} has joined`);
+    console.log(`${user} has joined `);
     socket.broadcast.emit("userJoined", {
       user: "Admin",
-      message: `${users[socket.id]} has joined`,
+      message: ` ${users[socket.id]} has joined`,
     });
-
     socket.emit("welcome", {
       user: "Admin",
-      message: `welcome to the chat, ${users[socket.id]}`,
+      message: `Welcome to the chat,${users[socket.id]} `,
     });
+  });
+
+  socket.on("message", ({ message, id }) => {
+    io.emit("sendMessage", { user: users[id], message, id });
   });
 
   socket.on("disconnect", () => {
     socket.broadcast.emit("leave", {
-      user: "Aadmin",
-      message: "User has left",
+      user: "Admin",
+      message: `${users[socket.id]}  has left`,
     });
-    console.log("User Left");
+    console.log(`user left`);
   });
 });
 
