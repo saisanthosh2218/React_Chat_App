@@ -65,7 +65,7 @@ const ChatPage = () => {
         <div className="chat_header">
           <h3>Chats</h3>
         </div>
-
+        {/* Automatic Scroll to Bottom by React  */}
         <ReactScrollToBottom className="chats">
           {messages.map((item, i) => (
             <Messages

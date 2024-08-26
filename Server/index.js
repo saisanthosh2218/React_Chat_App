@@ -1,5 +1,4 @@
 const express = require("express");
-
 const http = require("http");
 const cors = require("cors");
 const app = express();
@@ -9,7 +8,10 @@ const server = http.createServer(app);
 app.use(cors({ origin: "http://localhost:5173" }));
 
 const io = socketIO(server);
+//Users Array
 let users = [{}];
+
+//Socket connection
 io.on("connection", (socket) => {
   console.log("New Connection");
 
