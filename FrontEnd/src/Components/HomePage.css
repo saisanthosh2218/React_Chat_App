@@ -1,22 +1,56 @@
 .container {
-  width: 500px;
-  height: 250px;
+  width: 40%;
+  height: 45vh;
+
   margin: 0px auto;
-  border: solid 1px black;
   padding: 8px;
+  border-radius: 6px;
   background-color: lightgrey;
 }
 
+.logo {
+  margin-top: 8px;
+}
+
 .inner-contain {
-  border: dotted 1px black;
   background-color: red;
   padding: 2px;
   text-align: center;
+  border-radius: 5px;
+  margin-bottom: 8px;
 }
 
 .inputs {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  /* align-items: center; */
+  margin-top: 22px;
+}
+
+input {
+  border: none;
+  outline: none;
+  padding: 12px;
+  width: 50%;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+button {
+  text-align: center;
+  margin: 12px auto;
+  border: none;
+  background-color: lightslategray;
+  color: whitesmoke;
+  padding: 12px;
+  width: 85px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 18px;
+  transition: all 0.3s;
+}
+
+button:hover {
+  background-color: rgb(78, 78, 211);
+  cursor: pointer;
 }

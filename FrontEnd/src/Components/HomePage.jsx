@@ -21,7 +21,7 @@ const HomePage = () => {
             <img src={logo} alt="" />
           </div>
           <div>
-            <h3>Chat Application</h3>
+            <h2>React Chat Application</h2>
           </div>
         </div>
         <div className="inputs">
@@ -37,7 +37,7 @@ const HomePage = () => {
             />
           </div>
 
-          <div>
+          <div style={{ margin: "0px auto" }}>
             <Link
               onClick={(event) => {
                 !name ? event.preventDefault() : null;
