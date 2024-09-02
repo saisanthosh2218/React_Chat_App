@@ -54,4 +54,5 @@ const HomePage = () => {
 };
 
 export default HomePage;
+// eslint-disable-next-line react-refresh/only-export-components
 export { user };
