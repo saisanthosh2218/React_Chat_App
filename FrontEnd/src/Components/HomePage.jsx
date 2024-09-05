@@ -3,6 +3,7 @@ import "./HomePage.css";
 import logo from "../../public/vite.svg";
 import { useState } from "react";
 
+//sending user name
 let user;
 
 const HomePage = () => {
