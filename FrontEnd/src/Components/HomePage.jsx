@@ -55,5 +55,6 @@ const HomePage = () => {
 };
 
 export default HomePage;
+// Just a normal vite eslint line
 // eslint-disable-next-line react-refresh/only-export-components
 export { user };
