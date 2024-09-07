@@ -1,6 +1,8 @@
 import "./Messages.css";
 
 const Messages = (data) => {
+  // Getting data from homepage as props
+
   if (data.user) {
     return (
       <div
