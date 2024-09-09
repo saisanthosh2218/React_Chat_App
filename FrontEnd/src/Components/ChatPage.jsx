@@ -16,6 +16,8 @@ const ChatPage = () => {
     socket.emit("message", { message, id });
     document.getElementById("input").value = "";
   };
+
+  // This UseEffect is for Socket IO Connection
   useEffect(() => {
     socket = socketIO(APIport, { transports: ["websocket"] });
 
@@ -47,7 +49,10 @@ const ChatPage = () => {
       socket.emit("disconect");
       socket.off();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // This UseEffect is for Messages
 
   useEffect(() => {
     socket.on("sendMessage", (data) => {
@@ -65,7 +70,7 @@ const ChatPage = () => {
         <div className="chat_header">
           <h3>Chats</h3>
         </div>
-        {/* Automatic Scroll to Bottom by React  */}
+        {/* Automatic Scroll to Bottom by React   */}
         <ReactScrollToBottom className="chats">
           {messages.map((item, i) => (
             <Messages
