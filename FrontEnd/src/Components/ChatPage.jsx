@@ -52,7 +52,7 @@ const ChatPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // This UseEffect is for Loading Messages
+  // This UseEffect is for Loading Chat Messages
 
   useEffect(() => {
     socket.on("sendMessage", (data) => {
