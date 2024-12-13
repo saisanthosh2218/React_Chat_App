@@ -3,7 +3,7 @@ import socketIO from "socket.io-client";
 import { user } from "./HomePage";
 import { useEffect, useState } from "react";
 import Messages from "./Messages";
-const APIport = "https://react-chat-app-inky-omega.vercel.app/";
+const APIport = "http://localhost:7859/";
 import ReactScrollToBottom from "react-scroll-to-bottom";
 
 let socket;
