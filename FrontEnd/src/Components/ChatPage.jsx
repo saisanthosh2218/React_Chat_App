@@ -3,7 +3,7 @@ import socketIO from "socket.io-client";
 import { user } from "./HomePage";
 import { useEffect, useState } from "react";
 import Messages from "./Messages";
-const APIport = "https://react-chat-app-ashy.vercel.app/";
+const APIport = "https://react-chat-app-1-rvbt.onrender.com";
 import ReactScrollToBottom from "react-scroll-to-bottom";
 
 let socket;
