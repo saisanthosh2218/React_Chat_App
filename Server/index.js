@@ -7,7 +7,13 @@ const port = 7859;
 const server = http.createServer(app);
 app.use(cors({ origin: "https://react-chat-app-ashy.vercel.app/" }));
 
-const io = socketIO(server);
+const io = socketIO(server, {
+  cors: {
+    origin: "https://react-chat-app-ashy.vercel.app/",
+    methods: ["GET", "POST"],
+  },
+});
+
 //Users Array
 let users = [{}];
 
