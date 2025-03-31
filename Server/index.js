@@ -1,56 +1,71 @@
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
-const app = express();
+const path = require("path");
 const socketIO = require("socket.io");
-const port = 7859;
-const server = http.createServer(app);
-app.use(cors({ origin: "https://react-chat-app-ashy.vercel.app/" }));
+const mongoose = require("mongoose");
 
+// Import configuration
+const { PORT, MONGODB_URI } = require("./config/config");
+
+// Import routes
+const userRoutes = require("./routes/userRoutes");
+const messageRoutes = require("./routes/messageRoutes");
+
+// Import socket handler
+const socketHandler = require("./socket/socketHandler");
+
+// Import message controller to share the io instance
+const messageController = require("./controllers/messageController");
+
+const app = express();
+const port = PORT;
+const server = http.createServer(app);
+
+app.use(
+  cors({
+    origin: [
+      "https://react-chat-app-ashy.vercel.app/",
+      "http://localhost:5173",
+    ],
+  })
+);
+app.use(express.json());
+
+// MongoDB Connection
+mongoose
+  .connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.error("MongoDB Connection Failed:", err));
+
+// Serve uploaded files
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Use routes
+app.use("/", userRoutes);
+app.use("/messages", messageRoutes);
+
+// Socket.IO Setup
 const io = socketIO(server, {
   cors: {
-    origin: "https://react-chat-app-ashy.vercel.app/",
+    origin: [
+      "https://react-chat-app-ashy.vercel.app/",
+      "http://localhost:5173",
+    ],
     methods: ["GET", "POST"],
   },
 });
 
-//Users Array
-let users = [{}];
+// Share the io instance with message controller
+messageController.setIo(io);
 
-//Socket connection
-io.on("connection", (socket) => {
-  console.log("New Connection");
+// Initialize socket handler
+socketHandler(io);
 
-  socket.on("joined", ({ user }) => {
-    users[socket.id] = user;
-    console.log(`${user} has joined `);
-    socket.broadcast.emit("userJoined", {
-      user: "Admin",
-      message: ` ${users[socket.id]} has joined`,
-    });
-    socket.emit("welcome", {
-      user: "Admin",
-      message: `Welcome to the chat,${users[socket.id]} `,
-    });
-  });
-
-  socket.on("message", ({ message, id }) => {
-    io.emit("sendMessage", { user: users[id], message, id });
-  });
-
-  socket.on("disconnect", () => {
-    socket.broadcast.emit("leave", {
-      user: "Admin",
-      message: `${users[socket.id]}  has left`,
-    });
-    console.log(`user left`);
-  });
-});
-
-app.get("/", (req, res) => {
-  res.send("Server Is Working");
-});
-
+// Start Server
 server.listen(port, () => {
-  console.log(`server is running on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });
