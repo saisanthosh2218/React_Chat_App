@@ -88,7 +88,9 @@ const App = () => {
   };
 
   return (
-    <HashRouter>
+
+    
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -110,8 +112,8 @@ const App = () => {
         />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-    </HashRouter>
-  );
+      </BrowserRouter>
+    );
 };
 
 export default App;
