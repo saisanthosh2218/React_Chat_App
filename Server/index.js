@@ -7,7 +7,6 @@ const path = require("path");
 const socketIO = require("socket.io");
 const mongoose = require("mongoose");
 
-// Import configuration
 
 // Import routes
 const userRoutes = require("./routes/userRoutes");
@@ -29,6 +28,7 @@ app.use(
       process.env.LOCAL_URL,
       process.env.LIVE_URL
     ],
+    methods: ["GET", "POST"],
   })
 );
 app.use(express.json());
@@ -53,8 +53,8 @@ app.use("/messages", messageRoutes);
 const io = socketIO(server, {
   cors: {
     origin: [
-      "https://react-chat-app-ashy.vercel.app/",
-      "http://localhost:5173",
+      process.env.LOCAL_URL,
+      process.env.LIVE_URL
     ],
     methods: ["GET", "POST"],
   },
