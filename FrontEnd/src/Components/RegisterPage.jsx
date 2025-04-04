@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import "./LoginPage.css"; // Reuse the same styles
 
-const APIport = "http://localhost:7859"; // Change if using production server
+const APIport = import.meta.env.VITE_API_URL; // Change if using production server
 
 const RegisterPage = () => {
   const [fullName, setFullName] = useState("");
@@ -18,36 +18,43 @@ const RegisterPage = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
-    
+
     if (!fullName.trim() || !email.trim() || !password.trim()) {
       setError("Please fill in all fields");
       return;
     }
-    
+
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
-    
+
     if (password.length < 6) {
       setError("Password must be at least 6 characters long");
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
       await axios.post(`${APIport}/register`, {
         fullName,
         email,
-        password
+        password,
       });
-      
+
       // Don't store user in localStorage here
       // Instead, redirect to login page with success message
-      navigate("/", { state: { successMessage: "Registration successful! Please login with your credentials." } });
+      navigate("/", {
+        state: {
+          successMessage:
+            "Registration successful! Please login with your credentials.",
+        },
+      });
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed. Please try again.");
+      setError(
+        err.response?.data?.message || "Registration failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -65,18 +72,18 @@ const RegisterPage = () => {
           <h1>Chatty</h1>
         </div>
       </div>
-      
+
       <div className="login-form-container">
         <div className="login-form-content">
           <div className="login-icon">
             <span>💬</span>
           </div>
-          
+
           <h2>Create Account</h2>
           <p className="login-subtitle">Join our chat community</p>
-          
+
           {error && <div className="error-message">{error}</div>}
-          
+
           <form onSubmit={handleRegister}>
             <div className="form-group">
               <label htmlFor="fullName">Full Name</label>
@@ -92,7 +99,7 @@ const RegisterPage = () => {
                 />
               </div>
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="email">Email</label>
               <div className="input-with-icon">
@@ -107,7 +114,7 @@ const RegisterPage = () => {
                 />
               </div>
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <div className="input-with-icon">
@@ -120,8 +127,8 @@ const RegisterPage = () => {
                   placeholder="••••••••"
                   required
                 />
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="toggle-password"
                   onClick={togglePasswordVisibility}
                 >
@@ -129,7 +136,7 @@ const RegisterPage = () => {
                 </button>
               </div>
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="confirmPassword">Confirm Password</label>
               <div className="input-with-icon">
@@ -144,16 +151,12 @@ const RegisterPage = () => {
                 />
               </div>
             </div>
-            
-            <button 
-              type="submit" 
-              className="login-button"
-              disabled={loading}
-            >
+
+            <button type="submit" className="login-button" disabled={loading}>
               {loading ? "Creating account..." : "Create account"}
             </button>
           </form>
-          
+
           <div className="create-account">
             Already have an account? <Link to="/">Sign in</Link>
           </div>
@@ -163,4 +166,4 @@ const RegisterPage = () => {
   );
 };
 
-export default RegisterPage; 
+export default RegisterPage;

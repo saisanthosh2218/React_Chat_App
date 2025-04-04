@@ -11,6 +11,13 @@
   --border-color: #3a3045;
 }
 
+.under-development {
+  text-align: center;
+  font-size: 1.3rem;
+  color: var(--accent-color);
+  margin-top: 10px;
+}
+
 .login-container {
   background-color: var(--primary-bg);
   min-height: 100vh;

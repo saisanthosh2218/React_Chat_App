@@ -1,3 +1,5 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
@@ -6,7 +8,7 @@ const socketIO = require("socket.io");
 const mongoose = require("mongoose");
 
 // Import configuration
-const { PORT, MONGODB_URI } = require("./config/config");
+// const { PORT, MONGODB_URI } = require("./config/config");
 
 // Import routes
 const userRoutes = require("./routes/userRoutes");
@@ -19,13 +21,13 @@ const socketHandler = require("./socket/socketHandler");
 const messageController = require("./controllers/messageController");
 
 const app = express();
-const port = PORT;
+const port = process.env.PORT;
 const server = http.createServer(app);
 
 app.use(
   cors({
     origin: [
-      "https://react-chat-app-ashy.vercel.app/",
+      // "https://react-chat-app-ashy.vercel.app/",
       "http://localhost:5173",
     ],
   })
@@ -34,7 +36,7 @@ app.use(express.json());
 
 // MongoDB Connection
 mongoose
-  .connect(MONGODB_URI, {
+  .connect(process.env.MONGODB_LOCAL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })

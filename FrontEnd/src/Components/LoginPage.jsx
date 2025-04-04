@@ -3,7 +3,7 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import axios from "axios";
 import "./LoginPage.css";
 
-const APIport = "http://localhost:7859"; // Change if using production server
+const APIport = import.meta.env.VITE_API_URL; // Change if using production server
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -28,24 +28,43 @@ const LoginPage = () => {
     e.preventDefault();
     setError("");
     setSuccessMessage("");
-    
+
     if (!email.trim() || !password.trim()) {
       setError("Please enter both email and password");
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
       const response = await axios.post(`${APIport}/login`, {
         email,
-        password
+        password,
       });
-      
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+
+      // Verify that we got a token in the response
+      if (!response.data.token) {
+        setError("Authentication failed: No token received from server");
+        setLoading(false);
+        return;
+      }
+
+      console.log("Login successful, received token");
+
+      // Store both user and token in localStorage
+      const userData = {
+        ...response.data.user,
+        token: response.data.token,
+      };
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      // Navigate to chat page
       navigate("/chat");
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed. Please try again.");
+      console.error("Login error:", err);
+      setError(
+        err.response?.data?.message || "Login failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -63,19 +82,23 @@ const LoginPage = () => {
           <h1>Chatty</h1>
         </div>
       </div>
-      
+      <h1 className="under-development">The Application is under development. Please Bear with me😊</h1>
+
       <div className="login-form-container">
+
         <div className="login-form-content">
           <div className="login-icon">
             <span>💬</span>
           </div>
-          
+
           <h2>Welcome Back</h2>
           <p className="login-subtitle">Sign in to your account</p>
-          
-          {successMessage && <div className="success-message">{successMessage}</div>}
+
+          {successMessage && (
+            <div className="success-message">{successMessage}</div>
+          )}
           {error && <div className="error-message">{error}</div>}
-          
+
           <form onSubmit={handleLogin}>
             <div className="form-group">
               <label htmlFor="email">Email</label>
@@ -91,7 +114,7 @@ const LoginPage = () => {
                 />
               </div>
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <div className="input-with-icon">
@@ -104,8 +127,8 @@ const LoginPage = () => {
                   placeholder="••••••••"
                   required
                 />
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="toggle-password"
                   onClick={togglePasswordVisibility}
                 >
@@ -113,23 +136,23 @@ const LoginPage = () => {
                 </button>
               </div>
             </div>
-            
-            <button 
-              type="submit" 
-              className="login-button"
-              disabled={loading}
-            >
+
+            <button type="submit" className="login-button" disabled={loading}>
               {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>
-          
+
           <div className="create-account">
-            Don't have an account? <Link to="/register">Create account</Link>
+            Don&apos;t have an account?{" "}
+            <Link to="/register">Create account</Link>
           </div>
-          
+
           <div className="welcome-message">
             <h3>Welcome back!</h3>
-            <p>Sign in to continue your conversations and catch up with your messages.</p>
+            <p>
+              Sign in to continue your conversations and catch up with your
+              messages.
+            </p>
           </div>
         </div>
       </div>
@@ -137,4 +160,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage; 
+export default LoginPage;

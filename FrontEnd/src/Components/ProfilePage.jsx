@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./ProfilePage.css";
 
-const APIport = "http://localhost:7859"; // Change if using production server
+const APIport = import.meta.env.VITE_API_URL; // Change if using production server
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
@@ -28,7 +28,7 @@ const ProfilePage = () => {
     setUser(parsedUser);
     setFullName(parsedUser.fullName);
     setEmail(parsedUser.email);
-    
+
     if (parsedUser.profileImage) {
       setPreviewImage(`${APIport}/${parsedUser.profileImage}`);
     }
@@ -52,13 +52,13 @@ const ProfilePage = () => {
       const formData = new FormData();
       formData.append("fullName", fullName);
       formData.append("email", email);
-      
+
       if (profileImage) {
         formData.append("profileImage", profileImage);
       }
 
       const response = await axios.put(
-        `${APIport}/update-profile/${user._id}`, 
+        `${APIport}/update-profile/${user._id}`,
         formData,
         {
           headers: {
@@ -91,7 +91,16 @@ const ProfilePage = () => {
         </div>
         <div className="nav-links">
           <Link to="/chat">💬 Chat</Link>
-          <Link to="/" onClick={() => localStorage.removeItem("user")}>🚪 Logout</Link>
+          <Link
+            to="/"
+            onClick={() => {
+              localStorage.removeItem("user");
+              // Optionally notify other tabs about logout
+              window.dispatchEvent(new Event("storage"));
+            }}
+          >
+            🚪 Logout
+          </Link>
         </div>
       </div>
 
@@ -100,10 +109,12 @@ const ProfilePage = () => {
           <h2>Profile</h2>
           <p className="profile-subtitle">Your profile information</p>
 
-          {success && <div className="success-message">
-            <span className="success-icon">✓</span> {success}
-          </div>}
-          
+          {success && (
+            <div className="success-message">
+              <span className="success-icon">✓</span> {success}
+            </div>
+          )}
+
           {error && <div className="error-message">{error}</div>}
 
           <div className="profile-image-container">
@@ -164,23 +175,25 @@ const ProfilePage = () => {
 
             <div className="account-info">
               <h3>Account Information</h3>
-              
+
               <div className="info-row">
                 <div className="info-label">Member Since</div>
-                <div className="info-value">{new Date(user.createdAt || Date.now()).toISOString().split('T')[0]}</div>
+                <div className="info-value">
+                  {
+                    new Date(user.createdAt || Date.now())
+                      .toISOString()
+                      .split("T")[0]
+                  }
+                </div>
               </div>
-              
+
               <div className="info-row">
                 <div className="info-label">Account Status</div>
                 <div className="info-value status-active">Active</div>
               </div>
             </div>
 
-            <button 
-              type="submit" 
-              className="save-button"
-              disabled={loading}
-            >
+            <button type="submit" className="save-button" disabled={loading}>
               {loading ? "Saving..." : "Save Changes"}
             </button>
           </form>
@@ -190,4 +203,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage; 
+export default ProfilePage;
