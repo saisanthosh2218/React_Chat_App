@@ -25,8 +25,8 @@ const server = http.createServer(app);
 app.use(
   cors({
     origin: [
+      process.env.LIVE_URL,
       process.env.LOCAL_URL,
-      process.env.LIVE_URL
     ],
     methods: ["GET", "POST"],
   })
@@ -53,8 +53,8 @@ app.use("/messages", messageRoutes);
 const io = socketIO(server, {
   cors: {
     origin: [
+      process.env.LIVE_URL,
       process.env.LOCAL_URL,
-      process.env.LIVE_URL
     ],
     methods: ["GET", "POST"],
   },
