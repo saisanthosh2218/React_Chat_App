@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { HashRouter, Route, Routes, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import LoginPage from "./Components/LoginPage";
 import RegisterPage from "./Components/RegisterPage";
@@ -12,7 +12,10 @@ const App = () => {
   useEffect(() => {
     // Check if user is logged in with a valid token
     const checkAuth = () => {
+      console.log("Checking authentication status");
       const userStr = localStorage.getItem("user");
+      console.log("User data in localStorage:", userStr ? "exists" : "does not exist");
+      
       if (!userStr) {
         setIsAuthenticated(false);
         setIsCheckingAuth(false);
@@ -31,7 +34,7 @@ const App = () => {
         }
 
         // Token exists
-        console.log("Found valid token in localStorage");
+        console.log("Found valid token in localStorage, user is authenticated");
         setIsAuthenticated(true);
         setIsCheckingAuth(false);
       } catch (error) {
@@ -47,7 +50,13 @@ const App = () => {
 
     // Listen for storage events (logout in other tabs)
     window.addEventListener("storage", checkAuth);
-    return () => window.removeEventListener("storage", checkAuth);
+    // Add a custom event for checking auth
+    window.addEventListener("check-auth", checkAuth);
+    
+    return () => {
+      window.removeEventListener("storage", checkAuth);
+      window.removeEventListener("check-auth", checkAuth);
+    };
   }, []);
 
   // Protected route component
@@ -70,14 +79,16 @@ const App = () => {
     }
 
     if (!isAuthenticated) {
+      console.log("User not authenticated, redirecting to login");
       return <Navigate to="/" />;
     }
 
+    console.log("User authenticated, rendering protected route");
     return children;
   };
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -97,8 +108,9 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 };
 

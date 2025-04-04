@@ -38,10 +38,23 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${APIport}/login`, {
-        email,
-        password,
-      });
+      console.log("Sending login request to:", `${APIport}/login`);
+      const response = await axios.post(
+        `${APIport}/login`, 
+        {
+          email,
+          password,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          withCredentials: false // Set to true if your server supports credentials with CORS
+        }
+      );
+
+      console.log("Login response:", response.data);
 
       // Verify that we got a token in the response
       if (!response.data.token) {
@@ -59,8 +72,26 @@ const LoginPage = () => {
       };
       localStorage.setItem("user", JSON.stringify(userData));
 
-      // Navigate to chat page
-      navigate("/chat");
+      // Log before navigation
+      console.log("About to navigate to /chat");
+      
+      // Trigger auth check event
+      window.dispatchEvent(new Event("check-auth"));
+      
+      // Force a slight delay before navigation to ensure localStorage is updated
+      setTimeout(() => {
+        console.log("Navigating now...");
+        navigate("/chat");
+        
+        // If still on login page after timeout, try direct window location change
+        setTimeout(() => {
+          if (window.location.pathname === '/' || window.location.pathname === '') {
+            console.log("Still on login page, forcing navigation using window.location");
+            window.location.href = '/#/chat';
+          }
+        }, 500);
+      }, 100);
+      
     } catch (err) {
       console.error("Login error:", err);
       setError(
