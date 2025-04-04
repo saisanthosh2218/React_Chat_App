@@ -3,7 +3,8 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import axios from "axios";
 import "./LoginPage.css";
 
-  const APIport = import.meta.env.VITE_LIVE_API_URL; // Change if using production server
+const APIport = import.meta.env.VITE_LIVE_API_URL || "http://localhost:7859"; 
+console.log("Using API URL:", APIport); // Debugging
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");

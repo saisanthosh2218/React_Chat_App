@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./ProfilePage.css";
 
-const APIport = import.meta.env.VITE_LIVE_API_URL; // Change if using production server
+const APIport = import.meta.env.VITE_LIVE_API_URL || "http://localhost:7859";
+console.log("Using API URL in Profile:", APIport); // Debugging
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);

@@ -28,7 +28,9 @@ app.use(
       process.env.LIVE_URL,
       process.env.LOCAL_URL,
     ],
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
 app.use(express.json());
@@ -56,7 +58,9 @@ const io = socketIO(server, {
       process.env.LIVE_URL,
       process.env.LOCAL_URL,
     ],
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"]
   },
 });
 
