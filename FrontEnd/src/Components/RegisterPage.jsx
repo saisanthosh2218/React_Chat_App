@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import "./LoginPage.css"; // Reuse the same styles
 
-const APIport = import.meta.env.VITE_API_URL; // Change if using production server
+const APIport = import.meta.env.VITE_LIVE_API_URL; // Change if using production server
 
 const RegisterPage = () => {
   const [fullName, setFullName] = useState("");

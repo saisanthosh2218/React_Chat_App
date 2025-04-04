@@ -5,7 +5,7 @@ import socketIO from "socket.io-client";
 import axios from "axios";
 import "./NewChatPage.css";
 
-const APIport = import.meta.env.VITE_API_URL; // Change if using production server
+const APIport = import.meta.env.VITE_LIVE_API_URL; // Change if using production server
 let socket;
 
 const NewChatPage = () => {
