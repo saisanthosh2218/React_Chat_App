@@ -4,7 +4,6 @@ import axios from "axios";
 import "./LoginPage.css"; // Reuse the same styles
 
 const APIport = import.meta.env.VITE_LIVE_API_URL || "http://localhost:7859";
-console.log("Using API URL in Register:", APIport); // Debugging
 
 const RegisterPage = () => {
   const [fullName, setFullName] = useState("");

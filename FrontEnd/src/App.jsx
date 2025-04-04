@@ -12,9 +12,7 @@ const App = () => {
   useEffect(() => {
     // Check if user is logged in with a valid token
     const checkAuth = () => {
-      console.log("Checking authentication status");
       const userStr = localStorage.getItem("user");
-      console.log("User data in localStorage:", userStr ? "exists" : "does not exist");
       
       if (!userStr) {
         setIsAuthenticated(false);
@@ -34,7 +32,6 @@ const App = () => {
         }
 
         // Token exists
-        console.log("Found valid token in localStorage, user is authenticated");
         setIsAuthenticated(true);
         setIsCheckingAuth(false);
       } catch (error) {
