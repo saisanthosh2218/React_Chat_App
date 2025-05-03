@@ -141,7 +141,7 @@ const LoginPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="jane@email.com"
-                  required
+                  noValidate
                 />
               </div>
             </div>
@@ -156,8 +156,7 @@ const LoginPage = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  required
-                />
+                  noValidate/>
                 <button
                   type="button"
                   className="toggle-password"
@@ -176,6 +175,10 @@ const LoginPage = () => {
           <div className="create-account">
             Don&apos;t have an account?{" "}
             <Link to="/register">Create account</Link>
+          </div>
+
+          <div className="forgot-password">
+            <Link to="/forgot-password">Forgot your password?</Link>
           </div>
 
           <div className="welcome-message">

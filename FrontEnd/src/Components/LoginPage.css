@@ -212,6 +212,22 @@ input:focus {
   text-decoration: underline;
 }
 
+.forgot-password {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.forgot-password a {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+}
+
 .welcome-message {
   position: absolute;
   right: -300px;

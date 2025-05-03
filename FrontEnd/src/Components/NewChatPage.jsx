@@ -3,7 +3,16 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import socketIO from "socket.io-client";
 import axios from "axios";
+import { Document, Page, pdfjs } from 'react-pdf';
+import { IoMdSend } from "react-icons/io";
+import { IoMdAttach } from "react-icons/io";
+import { IoMdClose } from "react-icons/io";
+import { IoPerson } from "react-icons/io5";
+import { IoLogOut } from "react-icons/io5";
 import "./NewChatPage.css";
+
+// Set up PDF.js worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const APIport = import.meta.env.VITE_LIVE_API_URL || "http://localhost:7859";
 let socket;
@@ -400,7 +409,7 @@ const NewChatPage = () => {
     formData.append("text", messageInput);
 
     if (file) {
-      formData.append("attachment", file);
+      formData.append("attachment", file.file);
     }
 
     // Create a temp message object
@@ -410,7 +419,7 @@ const NewChatPage = () => {
       text: messageInput,
       timestamp: new Date().toISOString(),
       _id: `temp-${Date.now()}`,
-      attachment: file ? URL.createObjectURL(file) : null,
+      attachment: file ? URL.createObjectURL(file.file) : null,
     };
 
     // Reset input fields immediately for better UX
@@ -452,14 +461,71 @@ const NewChatPage = () => {
   };
 
   const handleFileChange = (e) => {
-    if (e.target.files[0]) {
-      setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      // Create preview URL for images and PDFs
+      if (selectedFile.type.startsWith('image/')) {
+        const previewUrl = URL.createObjectURL(selectedFile);
+        setFile({
+          file: selectedFile,
+          preview: previewUrl,
+          type: 'image'
+        });
+      } else if (selectedFile.type === 'application/pdf') {
+        const previewUrl = URL.createObjectURL(selectedFile);
+        setFile({
+          file: selectedFile,
+          preview: previewUrl,
+          type: 'pdf',
+          name: selectedFile.name,
+          size: selectedFile.size,
+          numPages: null
+        });
+      } else {
+        // For other document types
+        setFile({
+          file: selectedFile,
+          name: selectedFile.name,
+          size: selectedFile.size,
+          type: 'document'
+        });
+      }
     }
   };
+
+  // Add cleanup for preview URLs
+  useEffect(() => {
+    return () => {
+      // Cleanup preview URL when component unmounts
+      if (file?.preview) {
+        URL.revokeObjectURL(file.preview);
+    }
+  };
+  }, [file]);
 
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const formatLastSeen = (timestamp) => {
+    const now = new Date();
+    const lastSeen = new Date(timestamp);
+    const diffInMinutes = Math.floor((now - lastSeen) / (1000 * 60));
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    if (diffInMinutes < 1) {
+      return "just now";
+    } else if (diffInMinutes < 60) {
+      return `${diffInMinutes} minute${diffInMinutes === 1 ? "" : "s"} ago`;
+    } else if (diffInHours < 24) {
+      return `${diffInHours} hour${diffInHours === 1 ? "" : "s"} ago`;
+    } else if (diffInDays < 7) {
+      return `${diffInDays} day${diffInDays === 1 ? "" : "s"} ago`;
+    } else {
+      return lastSeen.toLocaleDateString();
+    }
   };
 
   const filteredContacts = showOnlineOnly
@@ -478,18 +544,22 @@ const NewChatPage = () => {
           <h1>Chatty</h1>
         </div>
         <div className="nav-links">
-          <Link to="/profile">👤 Profile</Link>
+          <Link to="/profile" className="nav-link">
+            <IoPerson className="nav-icon" />
+            <span>Profile</span>
+          </Link>
           <Link
             to="/"
             onClick={() => {
               localStorage.removeItem("user");
               if (socket) socket.disconnect();
               socketInitialized.current = false;
-              // Notify other tabs about logout
               window.dispatchEvent(new Event("storage"));
             }}
+            className="nav-link"
           >
-            🚪 Logout
+            <IoLogOut className="nav-icon" />
+            <span>Logout</span>
           </Link>
         </div>
       </div>
@@ -648,8 +718,16 @@ const NewChatPage = () => {
                 <div className="contact-avatar">
                   {contact.profileImage ? (
                     <img
-                      src={`${APIport}/${contact.profileImage}`}
+                      src={contact.profileImage.startsWith('http') 
+                        ? contact.profileImage 
+                        : `${APIport}/${contact.profileImage}`}
                       alt={contact.fullName}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                          contact.fullName
+                        )}&background=2a2335&color=d4a853&size=128`;
+                      }}
                     />
                   ) : (
                     <div className="avatar-placeholder">
@@ -663,24 +741,14 @@ const NewChatPage = () => {
                   ></span>
                 </div>
                 <div className="contact-info">
-                  <div className="contact-name">
-                    {contact.fullName}
-                    <span
-                      className="contact-status"
-                      style={{
-                        color: contact.online ? "#2ecc71" : "#6c6c6c",
-                        fontWeight: contact.online ? "bold" : "normal",
-                      }}
-                    >
-                      {contact.online ? "● Online" : "○ Offline"}
-                    </span>
+                  <div className="contact-name">{contact.fullName}</div>
+                  <div className="contact-status">
+                    {contact.online
+                      ? "online"
+                      : contact.lastSeen
+                      ? `last seen ${formatLastSeen(contact.lastSeen)}`
+                      : "offline"}
                   </div>
-                  {contact.lastMessage && (
-                    <div className="last-message">
-                      {contact.lastMessage.substring(0, 30)}
-                      {contact.lastMessage.length > 30 ? "..." : ""}
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
@@ -694,8 +762,16 @@ const NewChatPage = () => {
                 <div className="contact-avatar small">
                   {selectedContact.profileImage ? (
                     <img
-                      src={`${APIport}/${selectedContact.profileImage}`}
+                      src={selectedContact.profileImage.startsWith('http') 
+                        ? selectedContact.profileImage 
+                        : `${APIport}/${selectedContact.profileImage}`}
                       alt={selectedContact.fullName}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                          selectedContact.fullName
+                        )}&background=2a2335&color=d4a853&size=128`;
+                      }}
                     />
                   ) : (
                     <div className="avatar-placeholder">
@@ -708,10 +784,19 @@ const NewChatPage = () => {
                     }`}
                   ></span>
                 </div>
+                <div className="contact-header-details">
                 <div className="selected-contact-name">
                   {selectedContact.fullName}
                 </div>
-                <div>
+                  <div className="selected-contact-status">
+                    {selectedContact.online
+                      ? "online"
+                      : selectedContact.lastSeen
+                      ? `last seen ${formatLastSeen(selectedContact.lastSeen)}`
+                      : "offline"}
+                  </div>
+                </div>
+                <div className="header-actions">
                   <button
                     className="close-chat"
                     onClick={() => {
@@ -719,7 +804,7 @@ const NewChatPage = () => {
                       setMessages([]);
                     }}
                   >
-                    ✕
+                    <IoMdClose />
                   </button>
                 </div>
               </div>
@@ -754,8 +839,63 @@ const NewChatPage = () => {
               <div className="message-input-container">
                 {file && (
                   <div className="file-preview">
-                    <span>{file.name}</span>
-                    <button onClick={() => setFile(null)}>✕</button>
+                    {file.type === 'image' ? (
+                      <div className="image-preview">
+                        <img src={file.preview} alt="Preview" />
+                        <button className="close-button" onClick={() => setFile(null)}>✕</button>
+                      </div>
+                    ) : file.type === 'pdf' ? (
+                      <div className="pdf-preview">
+                        <button 
+                          className="close-button"
+                          onClick={() => setFile(null)}
+                          aria-label="Close preview"
+                        >
+                          ×
+                        </button>
+                        <div className="pdf-viewer">
+                          <Document
+                            file={file.file}
+                            onLoadSuccess={({ numPages }) => setFile(prev => ({ ...prev, numPages }))}
+                            onLoadError={() => console.error('Error loading PDF')}
+                          >
+                            {file.numPages ? (
+                              <Page 
+                                pageNumber={1} 
+                                width={300}
+                                renderTextLayer={false}
+                                renderAnnotationLayer={false}
+                              />
+                            ) : (
+                              <div className="pdf-loading">Loading PDF...</div>
+                            )}
+                          </Document>
+                        </div>
+                        <div className="document-info">
+                          <span className="document-icon">📄</span>
+                          <div className="document-details">
+                            <span className="document-name">{file.name}</span>
+                            <span className="document-size">
+                              {(file.size / 1024 / 1024).toFixed(2)} MB
+                              {file.numPages && ` • ${file.numPages} pages`}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ) : file.type === 'document' && (
+                      <div className="document-preview">
+                        <button className="close-button" onClick={() => setFile(null)}>✕</button>
+                        <div className="document-info">
+                          <span className="document-icon">📄</span>
+                          <div className="document-details">
+                            <span className="document-name">{file.name}</span>
+                            <span className="document-size">
+                              {(file.size / 1024).toFixed(1)} KB
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
                 <div className="message-input-wrapper">
@@ -768,12 +908,13 @@ const NewChatPage = () => {
                   />
                   <div className="message-actions">
                     <label htmlFor="file-input" className="file-input-label">
-                      🔗
+                      <IoMdAttach />
                     </label>
                     <input
                       id="file-input"
                       type="file"
                       onChange={handleFileChange}
+                      accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
                       style={{ display: "none" }}
                     />
                     <button
@@ -781,7 +922,7 @@ const NewChatPage = () => {
                       onClick={handleSendMessage}
                       disabled={!messageInput.trim() && !file}
                     >
-                      📤
+                      <IoMdSend />
                     </button>
                   </div>
                 </div>
